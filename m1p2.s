@@ -26,7 +26,7 @@ check_bit_count:
     cmp r6, #3 // Check if counter of ones reached 3
     bne increment_loop_counter
 
-    ldr r0, =format_string
+    ldr r0, =format
     mov r1, r4
     bl printf
 
