@@ -20,8 +20,11 @@ bit_loop:
     bne bit_loop                 @ If not zero, continue the bit loop
 
     cmp r3, #3                   @ Compare bit counter with 3
-    bne next                     @ If not equal, skip the printf
+    beq print_number             @ If equal, print the number
 
+    b next                       @ Otherwise, skip printing and continue
+
+print_number:
     ldr r0, =format              @ Load the format string
     bl printf                    @ Call printf
 
