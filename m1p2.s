@@ -1,9 +1,11 @@
+.section .data
+format_string: .asciz "%x\n"
+
 .section .text
 .global m1p2
-.type m1p2, %function
 
 m1p2:
-    push {r4, r5, r6, r7, lr}
+    push {r4-r7, lr}
 
     mov r4, #1
     mov r5, r0 // Copy N into r5
@@ -26,7 +28,7 @@ check_bit_count:
     cmp r6, #3 // Check if counter of ones reached 3
     bne increment_loop_counter
 
-    ldr r0, =format
+    ldr r0, =format_string
     mov r1, r4
     bl printf
 
@@ -38,7 +40,3 @@ increment_loop_counter:
 exit:
     pop {r4, r5, r6, r7, lr}
     bx lr
-
-.section .rodata
-format:
-    .asciz "%x\n"
