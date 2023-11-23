@@ -1,41 +1,40 @@
+.section .data
+printf_format: .asciz "%x\n"
+
+.section .text
 .global m1p2
-.type m1p2, %function
 
 m1p2:
-    push {lr}                    @ Save the link register to the stack
-    mov r1, #1                   @ Initialize counter to 1
+    push {r4, r5, r6, r7, r11, lr}
 
-loop:
-    cmp r1, r0                   @ Compare counter with N
-    bgt end                      @ If counter > N, end the loop
+    mov r4, #1
+    mov r5, r0 // Copy N into r5
 
-    mov r2, r1                   @ Copy counter to a temporary register
-    mov r3, #0                   @ Initialize bit counter to 0
+.loop:
+    mov r7, r4
+    mov r6, #0 // Reset counter
+.shift_loop:
+    cmp r7, #0 // Check if we reached 0
+    beq .shifting_done
 
-bit_loop:
-    and r4, r2, #1               @ Check the least significant bit
-    add r3, r3, r4               @ Add it to the bit counter
-    lsr r2, r2, #1               @ Right shift the number
-    cmp r2, #0                   @ Compare with 0
-    bne bit_loop                 @ If not zero, continue the bit loop
+    tst r7, #1 // Check if last bit is 1
+    addne r6, r6, #1 // increment ones counter, if result of AND is non zero
 
-    cmp r3, #3                   @ Compare bit counter with 3
-    beq print_number             @ If equal, print the number
+    mov r7, r7, LSR#1 // Right shift current value
+    b .shift_loop
+.shifting_done:
+    cmp r6, #3 // Check if counter of ones reached 3
+    bne .skip_print
 
-    b next                       @ Otherwise, skip printing and continue
+    ldr r0, adr_printf_format
+    mov r1, r4
+    bl printf
 
-print_number:
-    ldr r0, =format              @ Load the format string
-    bl printf                    @ Call printf
+.skip_print:
+    cmp r4, r5
+    addlt r4, r4, #1
+    bne .loop
+exit:
+    pop {r4, r5, r6, r7, r11, pc}
 
-next:
-    add r1, r1, #1               @ Increment the counter
-    b loop                       @ Repeat the loop
-
-end:
-    pop {lr}                     @ Restore the link register from the stack
-    bx lr                        @ Return from the function
-
-.section .rodata
-format:
-    .asciz "%x\n"
+adr_printf_format: .word printf_format
